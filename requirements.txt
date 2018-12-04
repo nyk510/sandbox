@@ -1,0 +1,13 @@
+jupyter
+notebook
+tqdm
+matplotlib
+numpy
+scipy
+scikit-learn
+pandas
+numba
+xgboost
+opencv-python
+seaborn
+lightgbm

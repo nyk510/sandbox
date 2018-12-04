@@ -1,0 +1,21 @@
+version: '2.3'
+services:
+  jupyter:
+    build:
+      context: ./
+      dockerfile: ./docker/Dockerfile
+    image: data-analysis-cpu
+    container_name: sandbox-jupyter
+    working_dir: /workspace
+    ports:
+      - 6999:8888
+    volumes:
+      - ./:/workspace
+      # apply your local custom.css
+      - ./docker/jupyter-custom.css:/home/penguin/.jupyter/custom/custom.css
+      # js font matplotlib
+      - ./docker/matplotlibrc:/opt/conda/lib/python3.5/site-packages/matplotlib/mpl-data/matplotlibrc
+    environment:
+     # workingdir に python の path を通すことで
+     # プロジェクトルートに配置した自作のモジュールを import できるようにしている
+     - PYTHONPATH=/workspace
