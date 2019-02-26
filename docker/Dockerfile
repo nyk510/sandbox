@@ -44,27 +44,11 @@ ENTRYPOINT ["/usr/bin/tini", "--"]
 ENV CONDA_DIR /opt/conda
 ENV PATH ${CONDA_DIR}/bin:${PATH}
 
-RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-4.1.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+RUN wget --quiet https://repo.continuum.io/miniconda/Miniconda3-4.5.12-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p ${CONDA_DIR} && \
     rm ~/miniconda.sh
 
-# install zplug
-RUN curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
 RUN conda install -y conda
-
-RUN conda install -y \
-  numpy \
-  scipy \
-  scikit-learn
-
-# install lightGBM
-RUN git clone --recursive https://github.com/Microsoft/LightGBM && \
-  cd LightGBM/python-package &&\
-  python setup.py install
-
-# install additional packages
-ADD requirements.txt requirements.txt
-RUN pip install -U pip && pip install -r requirements.txt
 
 # install note fonts
 # use apt-get install note-fonts, matplotlib can't catch these fonts
@@ -72,11 +56,17 @@ RUN pip install -U pip && pip install -r requirements.txt
 # see: http://mirai-tec.hatenablog.com/entry/2018/04/17/004343
 ENV NOTO_DIR /usr/share/fonts/opentype/notosans
 RUN mkdir -p ${NOTO_DIR} &&\
-  wget https://noto-website-2.storage.googleapis.com/pkgs/NotoSansCJKjp-hinted.zip -O noto.zip &&\
+  wget --quiet https://noto-website-2.storage.googleapis.com/pkgs/NotoSansCJKjp-hinted.zip -O noto.zip &&\
   unzip ./noto.zip -d ${NOTO_DIR}/ &&\
   chmod a+r ${NOTO_DIR}/NotoSans* &&\
   rm ./noto.zip
 
+ADD requirements.txt requirements.txt
+RUN pip install -U pip && pip install -r requirements.txt --ignore-installed
+# install lightGBM
+RUN git clone --recursive https://github.com/Microsoft/LightGBM && \
+  cd LightGBM/python-package &&\
+  python setup.py install
 # remove cache files
 RUN apt-get autoremove -y && apt-get clean && \
   conda clean -i -l -t -y && \
@@ -88,6 +78,9 @@ RUN groupadd -g 1000 developer &&\
   useradd -g developer -G sudo -m -s /bin/bash ${USER_NAME} &&\
   echo "${USER_NAME}:${USER_PASSWORD}" | chpasswd
 USER ${USER_NAME}
+
+# install zplug
+RUN curl -sL --proto-redir -all,https https://raw.githubusercontent.com/zplug/installer/master/installer.zsh | zsh
 
 # jupyter の config ファイルの作成
 RUN mkdir ~/.jupyter &&\

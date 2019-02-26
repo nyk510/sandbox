@@ -10,4 +10,4 @@ numba
 xgboost
 opencv-python
 seaborn
-lightgbm
+optuna
